@@ -3,18 +3,32 @@ require 'dbconfig.php';
 
 $message      = "";
 $message_type = "";
+
+// Initialize product variable to hold fetched product data
 $product      = null;
 
+// Check if an 'id' is passed via GET request (for loading product details)
 if (isset($_GET['id'])) {
     $id  = $_GET['id'];
+
+    // Prepare SQL query to fetch product by ID
     $sql = "SELECT * FROM products WHERE product_id = :id";
     $stmt = $pdo->prepare($sql);
+
+    // Bind the ID parameter securely as integer
     $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+
+    // Execute query
     $stmt->execute();
+
+    // Fetch product data
     $product = $stmt->fetch();
 }
 
+// Check if the update form has been submitted
 if (isset($_POST['update'])) {
+
+    // Retrieve form input values
     $id             = $_POST['product_id'];
     $product_name   = $_POST['product_name'];
     $category       = $_POST['category'];
@@ -22,30 +36,41 @@ if (isset($_POST['update'])) {
     $stock_quantity = $_POST['stock_quantity'];
 
     try {
+        // Prepare SQL query to update product data
         $sql = "UPDATE products
                 SET product_name    = :product_name,
                     category        = :category,
                     price           = :price,
                     stock_quantity  = :stock_quantity
                 WHERE product_id = :id";
+
         $stmt = $pdo->prepare($sql);
+
+        // Bind values to SQL parameters
         $stmt->bindParam(':product_name',   $product_name);
         $stmt->bindParam(':category',       $category);
         $stmt->bindParam(':price',          $price);
         $stmt->bindParam(':stock_quantity', $stock_quantity);
+
+        // Bind product ID (integer)
         $stmt->bindParam(':id',             $id, PDO::PARAM_INT);
+
+        // Execute update query
         $stmt->execute();
 
-        // Refresh product data
+        // Refresh product data after update
         $sql2  = "SELECT * FROM products WHERE product_id = :id";
         $stmt2 = $pdo->prepare($sql2);
         $stmt2->bindParam(':id', $id, PDO::PARAM_INT);
         $stmt2->execute();
         $product = $stmt2->fetch();
 
+        // Success message
         $message      = "✓ Product updated successfully!";
         $message_type = "success";
+
     } catch (PDOException $e) {
+        // Error handling
         $message      = "Error: " . $e->getMessage();
         $message_type = "error";
     }

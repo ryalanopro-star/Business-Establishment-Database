@@ -356,7 +356,6 @@ try {
     <!-- Search Bar -->
     <form method="GET" action="fetch.php" class="search-bar">
         <div class="search-wrap">
-            <span class="search-icon">🔍</span>
             <input
                 type="text"
                 name="search"
